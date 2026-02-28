@@ -1,0 +1,860 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wörter — German Vocabulary</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0f0e0b;
+    --surface: #1a1916;
+    --surface2: #242320;
+    --border: #2e2c28;
+    --gold: #d4a843;
+    --gold-light: #e8c46a;
+    --cream: #f0e8d8;
+    --muted: #7a7568;
+    --text: #e8e0d0;
+    --green: #4a7c59;
+    --red: #8b3a3a;
+    --green-light: #6aad82;
+    --red-light: #c25858;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0 16px 80px;
+    background-image: radial-gradient(ellipse 80% 50% at 50% -10%, rgba(212,168,67,0.08) 0%, transparent 60%);
+  }
+
+  header {
+    width: 100%;
+    max-width: 680px;
+    padding: 32px 0 20px;
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 28px;
+  }
+
+  .header-left { display: flex; align-items: baseline; gap: 12px; }
+
+  .logo {
+    font-family: 'Playfair Display', serif;
+    font-size: 2rem;
+    color: var(--gold);
+    letter-spacing: -0.02em;
+  }
+  .logo span { font-style: italic; font-weight: 400; }
+
+  .subtitle {
+    font-size: 0.75rem;
+    color: var(--muted);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    font-family: 'DM Mono', monospace;
+  }
+
+  .stats-row {
+    width: 100%;
+    max-width: 680px;
+    display: flex;
+    gap: 8px;
+    margin-bottom: 28px;
+  }
+
+  .stat {
+    flex: 1;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 16px;
+    text-align: center;
+  }
+
+  .stat-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.6rem;
+    color: var(--gold);
+    display: block;
+  }
+
+  .stat-label {
+    font-size: 0.7rem;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    font-family: 'DM Mono', monospace;
+  }
+
+  .tabs {
+    width: 100%;
+    max-width: 680px;
+    display: flex;
+    gap: 4px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 4px;
+    margin-bottom: 28px;
+  }
+
+  .tab {
+    flex: 1;
+    padding: 10px;
+    background: none;
+    border: none;
+    color: var(--muted);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.85rem;
+    cursor: pointer;
+    border-radius: 7px;
+    transition: all 0.2s;
+    letter-spacing: 0.02em;
+  }
+
+  .tab.active {
+    background: var(--surface2);
+    color: var(--gold);
+    border: 1px solid var(--border);
+  }
+
+  .panel { width: 100%; max-width: 680px; display: none; }
+  .panel.active { display: block; }
+
+  /* ── STUDY ── */
+  .card-area { display: flex; flex-direction: column; align-items: center; gap: 20px; }
+
+  .progress-bar-wrap {
+    width: 100%;
+    height: 3px;
+    background: var(--border);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  .progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, var(--gold), var(--gold-light));
+    border-radius: 2px;
+    transition: width 0.4s ease;
+  }
+
+  .card-counter {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--muted);
+    align-self: flex-end;
+  }
+
+  .card-scene {
+    width: 100%;
+    height: 240px;
+    perspective: 1000px;
+    cursor: pointer;
+  }
+
+  .card-inner {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    transform-style: preserve-3d;
+    transition: transform 0.55s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .card-scene.flipped .card-inner { transform: rotateY(180deg); }
+
+  .card-face {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    backface-visibility: hidden;
+    border-radius: 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    padding: 32px;
+  }
+
+  .card-front {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    background-image: radial-gradient(ellipse at 80% 20%, rgba(212,168,67,0.06) 0%, transparent 50%);
+  }
+
+  .card-back {
+    background: var(--surface2);
+    border: 1px solid rgba(212,168,67,0.4);
+    transform: rotateY(180deg);
+    background-image: radial-gradient(ellipse at 20% 80%, rgba(212,168,67,0.08) 0%, transparent 50%);
+  }
+
+  .card-lang-tag {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+    border: 1px solid var(--border);
+    padding: 3px 10px;
+    border-radius: 20px;
+  }
+
+  .card-back .card-lang-tag { color: var(--gold); border-color: rgba(212,168,67,0.3); }
+
+  .card-word {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.4rem;
+    color: var(--cream);
+    text-align: center;
+    line-height: 1.2;
+  }
+
+  .card-back .card-word { color: var(--gold-light); }
+
+  .card-hint { font-size: 0.8rem; color: var(--muted); font-style: italic; }
+
+  .audio-btn {
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    border-radius: 50%;
+    width: 36px; height: 36px;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1rem;
+    transition: all 0.2s;
+  }
+  .audio-btn:hover { border-color: var(--gold); color: var(--gold); }
+
+  .answer-row {
+    display: flex;
+    gap: 12px;
+    width: 100%;
+    animation: fadeUp 0.3s ease;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .btn {
+    padding: 12px 28px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .btn-wrong { background: rgba(139,58,58,0.15); color: var(--red-light); border-color: var(--red); flex: 1; }
+  .btn-wrong:hover { background: rgba(139,58,58,0.3); }
+
+  .btn-right { background: rgba(74,124,89,0.15); color: var(--green-light); border-color: var(--green); flex: 1; }
+  .btn-right:hover { background: rgba(74,124,89,0.3); }
+
+  .btn-primary { background: var(--gold); color: var(--bg); border-color: var(--gold); font-weight: 500; }
+  .btn-primary:hover { background: var(--gold-light); }
+
+  .btn-secondary { background: var(--surface); color: var(--text); }
+  .btn-secondary:hover { border-color: var(--gold); color: var(--gold); }
+
+  .btn-ghost {
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    font-size: 0.8rem;
+    padding: 8px 16px;
+  }
+  .btn-ghost:hover { border-color: var(--gold); color: var(--gold); }
+
+  .flip-hint { font-size: 0.75rem; color: var(--muted); font-family: 'DM Mono', monospace; }
+
+  .session-complete {
+    text-align: center;
+    padding: 48px 24px;
+    display: none;
+  }
+  .session-complete h2 { font-family: 'Playfair Display', serif; font-size: 2rem; color: var(--gold); margin-bottom: 8px; }
+  .session-complete p { color: var(--muted); margin-bottom: 28px; }
+
+  .no-cards { text-align: center; padding: 48px 24px; }
+  .no-cards h2 { font-family: 'Playfair Display', serif; font-size: 1.5rem; color: var(--gold); margin-bottom: 8px; }
+  .no-cards p { color: var(--muted); margin-bottom: 20px; }
+
+  /* ── ADD ── */
+  .add-form {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+  .add-form h2 { font-family: 'Playfair Display', serif; font-size: 1.3rem; color: var(--gold); }
+
+  .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+  .field { display: flex; flex-direction: column; gap: 6px; }
+  .field label {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+    font-family: 'DM Mono', monospace;
+  }
+  .field input {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 14px;
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.95rem;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .field input:focus { border-color: var(--gold); }
+  .field input::placeholder { color: var(--muted); }
+
+  .section-title {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--muted);
+    margin-bottom: 10px;
+  }
+
+  .preset-grid { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 28px; }
+
+  /* ── LIST ── */
+  .vocab-list { display: flex; flex-direction: column; gap: 8px; }
+
+  .vocab-item {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 18px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    animation: fadeUp 0.2s ease;
+  }
+
+  .vocab-de { font-family: 'Playfair Display', serif; font-size: 1.1rem; color: var(--cream); flex: 1; }
+  .vocab-sep { color: var(--muted); font-size: 0.8rem; }
+  .vocab-en { color: var(--muted); flex: 1; font-size: 0.9rem; }
+
+  .vocab-badge {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    padding: 3px 8px;
+    border-radius: 4px;
+    background: var(--surface2);
+    color: var(--muted);
+    border: 1px solid var(--border);
+    white-space: nowrap;
+  }
+  .vocab-badge.new { color: var(--gold); border-color: rgba(212,168,67,0.3); }
+  .vocab-badge.learning { color: var(--red-light); border-color: var(--red); }
+  .vocab-badge.known { color: var(--green-light); border-color: var(--green); }
+
+  .icon-btn {
+    background: none;
+    border: none;
+    color: var(--muted);
+    cursor: pointer;
+    font-size: 0.95rem;
+    padding: 4px 6px;
+    border-radius: 4px;
+    transition: color 0.2s;
+  }
+  .icon-btn:hover { color: var(--gold); }
+  .icon-btn.del:hover { color: var(--red-light); }
+
+  .empty-state { text-align: center; padding: 48px; color: var(--muted); }
+  .empty-state .big { font-family: 'Playfair Display', serif; font-size: 3rem; margin-bottom: 12px; opacity: 0.3; }
+
+  /* ── BACKUP ── */
+  .backup-section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 28px;
+    margin-bottom: 20px;
+  }
+  .backup-section h2 { font-family: 'Playfair Display', serif; font-size: 1.2rem; color: var(--gold); margin-bottom: 6px; }
+  .backup-section p { color: var(--muted); font-size: 0.85rem; margin-bottom: 16px; line-height: 1.6; }
+
+  .backup-btns { display: flex; gap: 10px; flex-wrap: wrap; }
+
+  textarea.import-box {
+    width: 100%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px;
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    font-size: 0.75rem;
+    resize: vertical;
+    outline: none;
+    margin-top: 12px;
+    min-height: 100px;
+  }
+  textarea.import-box:focus { border-color: var(--gold); }
+
+  .toast {
+    position: fixed;
+    bottom: 28px;
+    left: 50%;
+    transform: translateX(-50%) translateY(80px);
+    background: var(--gold);
+    color: var(--bg);
+    padding: 10px 24px;
+    border-radius: 30px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    transition: transform 0.3s cubic-bezier(0.4,0,0.2,1);
+    z-index: 999;
+    pointer-events: none;
+  }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+
+  .divider {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 20px 0;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-left">
+    <div class="logo">Wör<span>ter</span></div>
+    <div class="subtitle">German Vocabulary</div>
+  </div>
+</header>
+
+<div class="stats-row">
+  <div class="stat"><span class="stat-num" id="stat-total">0</span><span class="stat-label">Words</span></div>
+  <div class="stat"><span class="stat-num" id="stat-known">0</span><span class="stat-label">Known</span></div>
+  <div class="stat"><span class="stat-num" id="stat-due">0</span><span class="stat-label">Due Today</span></div>
+</div>
+
+<div class="tabs">
+  <button class="tab active" onclick="switchTab('study')">📖 Study</button>
+  <button class="tab" onclick="switchTab('add')">＋ Add</button>
+  <button class="tab" onclick="switchTab('list')">📋 My Words</button>
+  <button class="tab" onclick="switchTab('backup')">💾 Backup</button>
+</div>
+
+<!-- STUDY -->
+<div class="panel active" id="panel-study">
+  <div class="no-cards" id="no-cards-msg" style="display:none;">
+    <h2>No words yet</h2>
+    <p>Add some German words to start studying.</p>
+    <button class="btn btn-primary" onclick="switchTab('add')">Add Words →</button>
+  </div>
+
+  <div class="card-area" id="card-area">
+    <div class="progress-bar-wrap"><div class="progress-bar" id="progress-bar" style="width:0%"></div></div>
+    <div class="card-counter" id="card-counter">0 / 0</div>
+
+    <div class="card-scene" id="card-scene" onclick="flipCard()">
+      <div class="card-inner" id="card-inner">
+        <div class="card-face card-front">
+          <span class="card-lang-tag">Deutsch</span>
+          <div class="card-word" id="card-german">—</div>
+          <button class="audio-btn" onclick="event.stopPropagation(); speakGerman()" title="Listen">🔊</button>
+          <span class="card-hint">tap card to reveal answer</span>
+        </div>
+        <div class="card-face card-back">
+          <span class="card-lang-tag">English</span>
+          <div class="card-word" id="card-english">—</div>
+          <button class="audio-btn" onclick="event.stopPropagation(); speakGerman()" title="Hear again">🔊</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="answer-area"><p class="flip-hint">Tap the card to reveal the answer</p></div>
+  </div>
+
+  <div class="session-complete" id="session-complete">
+    <h2>Sehr gut! 🎉</h2>
+    <p id="session-summary">Session complete.</p>
+    <button class="btn btn-primary" onclick="startSession()">Study Again</button>
+  </div>
+</div>
+
+<!-- ADD -->
+<div class="panel" id="panel-add">
+  <div class="add-form">
+    <h2>Add a New Word</h2>
+    <div class="field-row">
+      <div class="field">
+        <label>German Word</label>
+        <input type="text" id="input-de" placeholder="e.g. das Buch" />
+      </div>
+      <div class="field">
+        <label>English Translation</label>
+        <input type="text" id="input-en" placeholder="e.g. the book" />
+      </div>
+    </div>
+    <button class="btn btn-primary" onclick="addWord()">Add Word</button>
+  </div>
+
+  <p class="section-title">Quick Add — Common Words</p>
+  <div class="preset-grid">
+    <button class="btn btn-secondary" style="font-size:0.8rem;padding:8px 14px;" onclick="addPreset('das Haus','the house')">das Haus</button>
+    <button class="btn btn-secondary" style="font-size:0.8rem;padding:8px 14px;" onclick="addPreset('essen','to eat')">essen</button>
+    <button class="btn btn-secondary" style="font-size:0.8rem;padding:8px 14px;" onclick="addPreset('schlafen','to sleep')">schlafen</button>
+    <button class="btn btn-secondary" style="font-size:0.8rem;padding:8px 14px;" onclick="addPreset('die Katze','the cat')">die Katze</button>
+    <button class="btn btn-secondary" style="font-size:0.8rem;padding:8px 14px;" onclick="addPreset('schön','beautiful')">schön</button>
+    <button class="btn btn-secondary" style="font-size:0.8rem;padding:8px 14px;" onclick="addPreset('der Hund','the dog')">der Hund</button>
+    <button class="btn btn-secondary" style="font-size:0.8rem;padding:8px 14px;" onclick="addPreset('trinken','to drink')">trinken</button>
+    <button class="btn btn-secondary" style="font-size:0.8rem;padding:8px 14px;" onclick="addPreset('die Zeit','time')">die Zeit</button>
+    <button class="btn btn-secondary" style="font-size:0.8rem;padding:8px 14px;" onclick="addPreset('gehen','to go')">gehen</button>
+    <button class="btn btn-secondary" style="font-size:0.8rem;padding:8px 14px;" onclick="addPreset('sprechen','to speak')">sprechen</button>
+    <button class="btn btn-secondary" style="font-size:0.8rem;padding:8px 14px;" onclick="addPreset('das Wasser','water')">das Wasser</button>
+    <button class="btn btn-secondary" style="font-size:0.8rem;padding:8px 14px;" onclick="addPreset('kaufen','to buy')">kaufen</button>
+  </div>
+</div>
+
+<!-- LIST -->
+<div class="panel" id="panel-list">
+  <div class="vocab-list" id="vocab-list"></div>
+  <div class="empty-state" id="empty-state" style="display:none;">
+    <div class="big">📖</div>
+    <p>Your word list is empty.<br>Add some words to get started.</p>
+  </div>
+</div>
+
+<!-- BACKUP -->
+<div class="panel" id="panel-backup">
+
+  <div class="backup-section">
+    <h2>📤 Export Your Words</h2>
+    <p>Download your vocabulary as a file. Save it anywhere — your computer, Google Drive, Notion, USB. Use it to restore your words on any device or browser.</p>
+    <div class="backup-btns">
+      <button class="btn btn-primary" onclick="exportJSON()">Download Backup File</button>
+      <button class="btn btn-ghost" onclick="copyJSON()">Copy as Text</button>
+    </div>
+  </div>
+
+  <div class="backup-section">
+    <h2>📥 Import Words</h2>
+    <p>Paste a backup here or drag & drop a backup file to restore your vocabulary. Your existing words will be merged (no duplicates).</p>
+    <div class="backup-btns">
+      <label class="btn btn-ghost" style="cursor:pointer;">
+        Open Backup File <input type="file" accept=".json" style="display:none;" onchange="importFile(event)">
+      </label>
+    </div>
+    <textarea class="import-box" id="import-text" placeholder="Or paste your backup text here..."></textarea>
+    <div style="margin-top:10px;">
+      <button class="btn btn-primary" onclick="importFromText()">Import from Text</button>
+    </div>
+  </div>
+
+  <div class="backup-section">
+    <h2>⚠️ Reset</h2>
+    <p>Delete all words and progress. This cannot be undone — export a backup first!</p>
+    <button class="btn" style="background:rgba(139,58,58,0.15);color:var(--red-light);border-color:var(--red);" onclick="resetAll()">Delete Everything</button>
+  </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ─── Storage ──────────────────────────────────────────────────────────────────
+const STORAGE_KEY = 'wörter_vocab_v2';
+let vocab = [];
+
+function loadVocab() {
+  try {
+    vocab = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+  } catch(e) { vocab = []; }
+}
+
+function save() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(vocab));
+}
+
+// ─── SRS ──────────────────────────────────────────────────────────────────────
+function dueCards() {
+  const t = Date.now();
+  return vocab.filter(w => !w.nextReview || new Date(w.nextReview) <= t);
+}
+
+function scheduleCard(word, known) {
+  if (known) {
+    word.interval = Math.min((word.interval || 1) * 2, 30);
+    word.correct = (word.correct || 0) + 1;
+  } else {
+    word.interval = 1;
+    word.wrong = (word.wrong || 0) + 1;
+  }
+  const next = new Date();
+  next.setDate(next.getDate() + word.interval);
+  word.nextReview = next.toISOString();
+  save();
+}
+
+// ─── Study ────────────────────────────────────────────────────────────────────
+let sessionQueue = [], sessionIndex = 0, sessionCorrect = 0, flipped = false;
+
+function startSession() {
+  sessionQueue = [...dueCards()];
+  for (let i = sessionQueue.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [sessionQueue[i], sessionQueue[j]] = [sessionQueue[j], sessionQueue[i]];
+  }
+  sessionIndex = 0; sessionCorrect = 0;
+  document.getElementById('session-complete').style.display = 'none';
+  document.getElementById('card-area').style.display = 'flex';
+  showCard();
+}
+
+function showCard() {
+  flipped = false;
+  document.getElementById('card-scene').classList.remove('flipped');
+  document.getElementById('answer-area').innerHTML = '<p class="flip-hint">Tap the card to reveal the answer</p>';
+
+  if (sessionIndex >= sessionQueue.length) {
+    document.getElementById('card-area').style.display = 'none';
+    document.getElementById('session-complete').style.display = 'block';
+    const pct = sessionQueue.length > 0 ? Math.round(sessionCorrect / sessionQueue.length * 100) : 0;
+    document.getElementById('session-summary').textContent =
+      `You got ${sessionCorrect} of ${sessionQueue.length} correct (${pct}%).`;
+    updateStats();
+    return;
+  }
+
+  const word = sessionQueue[sessionIndex];
+  document.getElementById('card-german').textContent = word.de;
+  document.getElementById('card-english').textContent = word.en;
+  const pct = sessionQueue.length > 0 ? (sessionIndex / sessionQueue.length * 100) : 0;
+  document.getElementById('progress-bar').style.width = pct + '%';
+  document.getElementById('card-counter').textContent = `${sessionIndex + 1} / ${sessionQueue.length}`;
+}
+
+function flipCard() {
+  if (flipped) return;
+  flipped = true;
+  document.getElementById('card-scene').classList.add('flipped');
+  document.getElementById('answer-area').innerHTML = `
+    <div class="answer-row">
+      <button class="btn btn-wrong" onclick="answer(false)">✗ Still Learning</button>
+      <button class="btn btn-right" onclick="answer(true)">✓ Got It</button>
+    </div>`;
+  speakGerman();
+}
+
+function answer(known) {
+  scheduleCard(sessionQueue[sessionIndex], known);
+  if (known) sessionCorrect++;
+  sessionIndex++;
+  setTimeout(showCard, 300);
+}
+
+function speakGerman() {
+  const word = sessionQueue[sessionIndex];
+  if (!word) return;
+  speak(word.de);
+}
+
+function speak(text) {
+  const utt = new SpeechSynthesisUtterance(text);
+  utt.lang = 'de-DE';
+  utt.rate = 0.85;
+  speechSynthesis.cancel();
+  speechSynthesis.speak(utt);
+}
+
+// ─── Add ──────────────────────────────────────────────────────────────────────
+function addWord() {
+  const de = document.getElementById('input-de').value.trim();
+  const en = document.getElementById('input-en').value.trim();
+  if (!de || !en) { toast('Please fill in both fields'); return; }
+  if (vocab.find(w => w.de.toLowerCase() === de.toLowerCase())) {
+    toast('Word already exists!'); return;
+  }
+  vocab.push({ id: Date.now(), de, en, interval: 1 });
+  save();
+  document.getElementById('input-de').value = '';
+  document.getElementById('input-en').value = '';
+  document.getElementById('input-de').focus();
+  updateStats();
+  toast(`Added: ${de}`);
+}
+
+function addPreset(de, en) {
+  if (vocab.find(w => w.de === de)) { toast('Already in your list!'); return; }
+  vocab.push({ id: Date.now(), de, en, interval: 1 });
+  save(); updateStats();
+  toast(`Added: ${de}`);
+}
+
+document.getElementById('input-en').addEventListener('keydown', e => { if (e.key === 'Enter') addWord(); });
+
+// ─── List ─────────────────────────────────────────────────────────────────────
+function renderList() {
+  const el = document.getElementById('vocab-list');
+  const empty = document.getElementById('empty-state');
+  if (vocab.length === 0) { el.innerHTML = ''; empty.style.display = 'block'; return; }
+  empty.style.display = 'none';
+  el.innerHTML = vocab.map(w => {
+    const level = !w.correct ? 'new' : w.interval >= 8 ? 'known' : 'learning';
+    const label = level === 'new' ? 'New' : level === 'known' ? 'Known' : 'Learning';
+    const safe = w.de.replace(/'/g, "\\'");
+    return `<div class="vocab-item">
+      <div class="vocab-de">${w.de}</div>
+      <div class="vocab-sep">→</div>
+      <div class="vocab-en">${w.en}</div>
+      <span class="vocab-badge ${level}">${label}</span>
+      <button class="icon-btn" onclick="speak('${safe}')" title="Listen">🔊</button>
+      <button class="icon-btn del" onclick="deleteWord(${w.id})" title="Delete">✕</button>
+    </div>`;
+  }).join('');
+}
+
+function deleteWord(id) {
+  vocab = vocab.filter(w => w.id !== id);
+  save(); updateStats(); renderList();
+  toast('Word deleted');
+}
+
+// ─── Stats ────────────────────────────────────────────────────────────────────
+function updateStats() {
+  document.getElementById('stat-total').textContent = vocab.length;
+  document.getElementById('stat-known').textContent = vocab.filter(w => (w.interval || 1) >= 8).length;
+  document.getElementById('stat-due').textContent = dueCards().length;
+
+  const noCards = document.getElementById('no-cards-msg');
+  const cardArea = document.getElementById('card-area');
+  const sessionComplete = document.getElementById('session-complete');
+
+  if (vocab.length === 0) {
+    noCards.style.display = 'block';
+    cardArea.style.display = 'none';
+    sessionComplete.style.display = 'none';
+  } else {
+    noCards.style.display = 'none';
+  }
+}
+
+// ─── Backup / Export / Import ─────────────────────────────────────────────────
+function exportJSON() {
+  const data = JSON.stringify({ app: 'Wörter', version: 2, exported: new Date().toISOString(), vocab }, null, 2);
+  const blob = new Blob([data], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `wörter-backup-${new Date().toISOString().slice(0,10)}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+  toast('Backup downloaded!');
+}
+
+function copyJSON() {
+  const data = JSON.stringify({ app: 'Wörter', version: 2, exported: new Date().toISOString(), vocab }, null, 2);
+  navigator.clipboard.writeText(data).then(() => toast('Copied to clipboard!')).catch(() => {
+    document.getElementById('import-text').value = data;
+    toast('Copied to text box below');
+  });
+}
+
+function importFile(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => { processImport(e.target.result); };
+  reader.readAsText(file);
+}
+
+function importFromText() {
+  const text = document.getElementById('import-text').value.trim();
+  if (!text) { toast('Paste your backup text first'); return; }
+  processImport(text);
+}
+
+function processImport(text) {
+  try {
+    const data = JSON.parse(text);
+    const words = data.vocab || data; // support both formats
+    if (!Array.isArray(words)) throw new Error('Invalid format');
+
+    let added = 0;
+    words.forEach(w => {
+      if (w.de && w.en && !vocab.find(v => v.de.toLowerCase() === w.de.toLowerCase())) {
+        vocab.push({ ...w, id: w.id || Date.now() + Math.random() });
+        added++;
+      }
+    });
+    save(); updateStats(); renderList();
+    document.getElementById('import-text').value = '';
+    toast(`Imported ${added} new word${added !== 1 ? 's' : ''}!`);
+  } catch(e) {
+    toast('Invalid backup file. Please try again.');
+  }
+}
+
+function resetAll() {
+  if (!confirm('Delete ALL words and progress? This cannot be undone.\n\nTip: Export a backup first!')) return;
+  vocab = [];
+  save(); updateStats(); renderList();
+  toast('All words deleted');
+}
+
+// ─── Tabs ─────────────────────────────────────────────────────────────────────
+function switchTab(name) {
+  document.querySelectorAll('.tab').forEach((t, i) => {
+    const names = ['study','add','list','backup'];
+    t.classList.toggle('active', names[i] === name);
+  });
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('panel-' + name).classList.add('active');
+  if (name === 'list') renderList();
+}
+
+// ─── Toast ────────────────────────────────────────────────────────────────────
+let toastTimer;
+function toast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 2500);
+}
+
+// ─── Init ─────────────────────────────────────────────────────────────────────
+loadVocab();
+updateStats();
+if (vocab.length > 0) {
+  startSession();
+} else {
+  document.getElementById('no-cards-msg').style.display = 'block';
+  document.getElementById('card-area').style.display = 'none';
+}
+</script>
+</body>
+</html>
